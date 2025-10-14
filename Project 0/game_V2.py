@@ -1,41 +1,101 @@
+"""Игра угадай число
+Компьютер сам загадывает и сам угадывает число
+"""
+
 import numpy as np
-def random_predict(number: int=1)-> int:
-    """_summary_
+
+
+def random_predict(number: int = 1) -> int:
+    """Рандомно угадываем число
 
     Args:
-        number (int, optional): _description_. Defaults to 1.
+        number (int, optional): Загаданное число. Defaults to 1.
 
     Returns:
-        int: _description_
+        int: Число попыток
     """
-    count=0
-    
+    count = 0
+
     while True:
-        count+=1
-        predict_number= np.random.randint(0, 101)
-        if number== predict_number:
-            break
+        count += 1
+        predict_number = np.random.randint(1, 101)  # предполагаемое число
+        if number == predict_number:
+            break  # выход из цикла если угадали
     return count
 
-def score_game(random_predict)-> int:
-    """_summary_
+def game_core_v2(number: int = 1) -> int:
+    """Сначала устанавливаем любое random число, а потом уменьшаем
+    или увеличиваем его в зависимости от того, больше оно или меньше нужного.
+       Функция принимает загаданное число и возвращает число попыток
 
     Args:
-        random_predict (_type_): _description_
+        number (int, optional): Загаданное число. Defaults to 1.
 
     Returns:
-        int: _description_
+        int: Число попыток
     """
-    count_ls= []
-    np.random.seed(1)
-    random_array = np.random.randint(1, 101, size=(1000))
+    count = 0
+    predict = np.random.randint(1, 101)
+
+    while number != predict:
+        count += 1
+        if number > predict:
+            predict += 1
+        elif number < predict:
+            predict -= 1
+
+    return count
+
+def game_core_v3(number: int = 1) -> int:
+    """Самый быстрый способ.
+    
+    Args:
+        number (int, optional): Загаданное число. Defaults to 1.
+
+    Returns:
+        int: Число попыток
+    """
+    # Задаем самую большую и самую меньшую возможную цифру. 
+    count = 0
+    highest = 100
+    lowest = 1
+    # Высчитываем среднее арифметичемкое число, делим пополам.
+    predict = (highest + lowest)//2
+    while number != predict:
+        count += 1
+    # Сужаем круг, переназначая самую большую или самую меньшую цифру.
+        if number < predict:
+            highest = predict - 1
+        else:
+            lowest = predict + 1
+        predict = (highest + lowest)//2
+
+    return count
+   
+
+def score_game(random_predict) -> int:
+    """За какое количство попыток в среднем за 1000 подходов угадывает наш алгоритм
+
+    Args:
+        random_predict ([type]): функция угадывания
+
+    Returns:
+        int: среднее количество попыток
+    """
+    count_ls = []
+    #np.random.seed(1)  # фиксируем сид для воспроизводимости
+    random_array = np.random.randint(1, 101, size=(1000))  # загадали список чисел
+
     for number in random_array:
         count_ls.append(random_predict(number))
 
-    score = int(np.mean(count_ls)) # находим среднее количество попыток
+    score = int(np.mean(count_ls))
+    print(f"Ваш алгоритм угадывает число в среднем за:{score} попыток")
+    return score
 
-    print(f'Ваш алгоритм угадывает число в среднем за: {score} попыток')
-    return(score)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+    # RUN
     score_game(random_predict)
+    score_game(game_core_v2)
+    score_game(game_core_v3)
